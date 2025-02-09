@@ -65,5 +65,5 @@ Il progetto è stato testato all'interno di un ambiente **Docker**, garantendo e
 
 ## Autore
 
-Questo progetto è stato sviluppato come parte della tesi di laurea di Vincenzo Raia.
+Questo progetto è stato sviluppato come parte della tesi di laurea di Vincenzo Raia. Per ulteriori approfondimento trovate la tesi [qui](tesi.pdf).
 
