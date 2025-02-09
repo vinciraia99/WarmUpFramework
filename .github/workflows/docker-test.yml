@@ -1,0 +1,65 @@
+name: Docker Container Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  docker-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose 
+
+    - name: Build Docker Image
+      run: docker-compose -f "Container API ML/docker-compose.yml" build
+
+    - name: Start Container
+      run: docker-compose -f "Container API ML/docker-compose.yml" up -d
+
+    - name: Wait for Container to Start
+      run: |
+        echo "Waiting for the container to start..."
+        sleep 10
+
+    - name: Test Endpoint
+      run: |
+        echo "Testing on port 5000"
+        RESPONSE=$(docker-compose -f "Container API ML/docker-compose.yml" exec -T warm-up-ml curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/rocket \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -d '{
+                "responseCode": 200,
+                "responseMessage": "OK",
+                "responseTime": 123.45,
+                "connectTime": 23.45,
+                "latency": 100.12,
+                "bytes": 5120,
+                "sentBytes": 2048,
+                "success": true,
+                "responseData": "Sample response data",
+                "threadName": "Thread-1",
+                "sampleLabel": "SampleLabel-1"
+              }')
+        echo "Response code: $RESPONSE"
+        if [ "$RESPONSE" == "404" ]; then
+          echo "Error: Received 404 Not Found"
+          exit 1
+        fi
+        echo "POST request sent successfully to /rocket!"
+
+    - name: Stop Container
+      run: docker-compose -f "Container API ML/docker-compose.yml" down

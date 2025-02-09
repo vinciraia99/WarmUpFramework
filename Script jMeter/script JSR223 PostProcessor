@@ -1,0 +1,95 @@
+// Importa le librerie necessarie
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import groovy.json.JsonOutput;
+import org.apache.jmeter.engine.StandardJMeterEngine;
+
+// URL dell'endpoint per inviare i risultati
+String postUrl = "http://192.168.31.35:5000/fcn"; // Endpoint per inviare i risultati
+
+// Crea un client HTTP
+CloseableHttpClient httpClient = HttpClients.createDefault();
+
+// Variabile globale per memorizzare il timestamp della prima risposta 200
+def vars = ctx.getVariables(); // Accesso alle variabili globali di JMeter
+String startTimeKey = "startTime"; // Chiave per il timestamp iniziale
+
+try {
+    // Recupera i risultati dal campione corrente utilizzando 'prev'
+    String responseCode = prev.getResponseCode(); // Codice HTTP
+
+    // Controlla se il codice di risposta è 200
+    if ("200".equals(responseCode)) {
+        // Memorizza il timestamp iniziale solo alla prima risposta 200
+        if (vars.get(startTimeKey) == null) {
+            vars.put(startTimeKey, String.valueOf(System.currentTimeMillis()));
+            log.info("Timestamp iniziale salvato: " + vars.get(startTimeKey));
+        }
+
+        String responseMessage = prev.getResponseMessage(); // Messaggio HTTP
+        String responseData = prev.getResponseDataAsString(); // Corpo della risposta
+        String responseTime = String.valueOf(prev.getTime()); // Tempo di risposta
+        String connectTime = String.valueOf(prev.getConnectTime()); // Connect time
+        String latency = String.valueOf(prev.getLatency()); // Latency
+        String bytes = String.valueOf(prev.getBytesAsLong()); // Byte size
+        String sentBytes = String.valueOf(prev.getSentBytes()); // Sent bytes size
+        String success = String.valueOf(prev.isSuccessful()); // Stato del test
+        String threadName = Thread.currentThread().getName(); // Nome del thread
+        String sampleLabel = prev.getSampleLabel(); // Etichetta del campione
+
+        // Creazione del payload JSON con tutti i parametri
+        Map payload = [
+            responseCode   : responseCode,
+            responseMessage: responseMessage,
+            responseTime   : responseTime,
+            connectTime    : connectTime,
+            latency        : latency,
+            bytes          : bytes,
+            sentBytes      : sentBytes,
+            success        : success,
+            responseData   : responseData,
+            threadName     : threadName,
+            sampleLabel    : sampleLabel
+        ];
+
+        // Converti il payload in JSON
+        String jsonPayload = JsonOutput.toJson(payload);
+
+        // Crea e invia la richiesta POST con i risultati
+        HttpPost postRequest = new HttpPost(postUrl);
+        StringEntity entity = new StringEntity(jsonPayload, "UTF-8");
+        postRequest.setEntity(entity);
+        postRequest.setHeader("Content-Type", "application/json");
+        postRequest.setHeader("Accept", "application/json");
+
+        CloseableHttpResponse postResponse = httpClient.execute(postRequest);
+        int postStatusCode = postResponse.getStatusLine().getStatusCode();
+        String postResponseBody = EntityUtils.toString(postResponse.getEntity()).trim();
+        log.info(postResponseBody.trim());
+
+        // Controlla se la risposta contiene la stringa "true"
+        if ("\"true\"".equalsIgnoreCase(postResponseBody.trim())) {
+            log.info("Ricevuto 'true' dall'endpoint. Calcolo il tempo trascorso...");
+
+            // Calcola il tempo trascorso
+            long startTime = Long.parseLong(vars.get(startTimeKey));
+            long elapsedTime = (System.currentTimeMillis() - startTime) / 1000; // Tempo in secondi
+            log.info("Tempo trascorso (in secondi) dalla prima risposta 200: " + elapsedTime);
+
+            // Interrompe il test
+            StandardJMeterEngine.stopEngine();
+        }
+    } else {
+        log.info("Response code non è 200. Dati non inviati.");
+    }
+
+} catch (Exception e) {
+    log.error("Errore nell'invio dei risultati: " + e.getMessage());
+    prev.setSuccessful(false); // Segnala il test come fallito in caso di errore
+} finally {
+    httpClient.close();
+}

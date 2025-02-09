@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  warm-up-ml:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "99:5000"
+    volumes:
+      - .:/app
+    command: ["python", "api.py"]
