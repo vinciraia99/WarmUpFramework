@@ -38,7 +38,7 @@ jobs:
     - name: Test Endpoint ROCKET
       run: |
         echo "Testing on port 5000"
-        RESPONSE=$(docker-compose exec -T warm-up-ml curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/rocket \
+        RESPONSE=$(docker-compose -f "Container API ML/docker-compose.yml" exec -T warm-up-ml curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/rocket \
           -H "Content-Type: application/json" \
           -H "Accept: application/json" \
           -d '{
@@ -65,7 +65,7 @@ jobs:
     - name: Test Endpoint FCN
       run: |
         echo "Testing on port 5000"
-        RESPONSE=$(docker-compose exec -T warm-up-ml curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/fcn \
+        RESPONSE=$(docker-compose -f "Container API ML/docker-compose.yml" exec -T warm-up-ml curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/fcn \
           -H "Content-Type: application/json" \
           -H "Accept: application/json" \
           -d '{

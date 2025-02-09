@@ -16,13 +16,13 @@ Per eseguire il progetto, assicurati di avere installato:
 - Docker & Docker Compose
 - Librerie Python necessarie (elencate in `requirements.txt`)
 
-## Installazione
+## Installazione per addestramento modelli
 
 Clona il repository e installa le dipendenze richieste:
 
 ```bash
 git clone https://github.com/tuo-repo/WarmUpFramework.git
-cd WarmUpFramework
+cd WarmUpFramework/Addestramento\ ML/
 pip install -r requirements.txt
 ```
 
