@@ -41,8 +41,8 @@ Il framework include diversi script per l'addestramento di modelli di machine le
 Per avviare l'addestramento, eseguire i seguenti comandi:
 
 ```bash
-python Addestramento\ ML/Script\ di\ addestramento\ modelli\ ML/FCN_multi.py
-python Addestramento\ ML/Script\ di\ addestramento\ modelli\ ML/rocket.py
+python Addestramento\ ML/Script\ di\ addestramento\ modelli\ ML/FCN.py
+python Addestramento\ ML/Script\ di\ addestramento\ modelli\ ML/ROCKET.py
 ```
 
 L'addestramento è basato su dataset preprocessati, che vengono segmentati attraverso il metodo PELT per ottenere una maggiore precisione nei risultati.
@@ -54,23 +54,14 @@ Il framework include un'API che consente di interrogare i modelli addestrati. L'
 Per avviare l'API tramite Docker, eseguire:
 
 ```bash
+cd "Container API ML"
 docker-compose up --build
-```
-
-In alternativa, è possibile avviare manualmente l'API eseguendo:
-
-```bash
-python Container\ API\ ML/api.py
 ```
 
 L'API permette di inviare dati ai modelli e ottenere previsioni, rendendo il sistema adatto all'integrazione in applicazioni reali che richiedono analisi predittive in tempo reale.
 
 ### Train Ticket e Docker
 Il progetto è stato testato all'interno di un ambiente **Docker**, garantendo esecuzioni riproducibili e isolando il framework dal sistema host. Per la validazione sperimentale è stato utilizzato il benchmark **Train Ticket**, che simula una piattaforma reale di prenotazione di biglietti ferroviari con **41 microservizi**. Questo sistema è disponibile su GitHub: [Train Ticket Docker](https://github.com/vinciraia99/train-ticket-docker).
-
-## Contributi
-
-Se vuoi contribuire al progetto, crea una nuova branch e invia una pull request con le modifiche. Sono benvenuti miglioramenti alle pipeline di preprocessing, nuovi modelli di machine learning e ottimizzazioni delle API.
 
 ## Autore
 

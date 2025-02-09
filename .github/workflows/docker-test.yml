@@ -35,10 +35,10 @@ jobs:
         echo "Waiting for the container to start..."
         sleep 10
 
-    - name: Test Endpoint
+    - name: Test Endpoint ROCKET
       run: |
         echo "Testing on port 5000"
-        RESPONSE=$(docker-compose -f "Container API ML/docker-compose.yml" exec -T warm-up-ml curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/rocket \
+        RESPONSE=$(docker-compose exec -T warm-up-ml curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/rocket \
           -H "Content-Type: application/json" \
           -H "Accept: application/json" \
           -d '{
@@ -55,11 +55,39 @@ jobs:
                 "sampleLabel": "SampleLabel-1"
               }')
         echo "Response code: $RESPONSE"
-        if [ "$RESPONSE" == "404" ]; then
-          echo "Error: Received 404 Not Found"
-          exit 1
+        if [ "$RESPONSE" == "200" ]; then
+          echo "POST request sent successfully to /rocket!"
+          exit 0
         fi
-        echo "POST request sent successfully to /rocket!"
+        echo "Error $RESPONSE"
+        exit 1
+
+    - name: Test Endpoint FCN
+      run: |
+        echo "Testing on port 5000"
+        RESPONSE=$(docker-compose exec -T warm-up-ml curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:5000/fcn \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -d '{
+                "responseCode": 200,
+                "responseMessage": "OK",
+                "responseTime": 123.45,
+                "connectTime": 23.45,
+                "latency": 100.12,
+                "bytes": 5120,
+                "sentBytes": 2048,
+                "success": true,
+                "responseData": "Sample response data",
+                "threadName": "Thread-1",
+                "sampleLabel": "SampleLabel-1"
+              }')
+        echo "Response code: $RESPONSE"
+        if [ "$RESPONSE" == "200" ]; then
+          echo "POST request sent successfully to /fcn!"
+          exit 0
+        fi
+        echo "Error $RESPONSE"
+        exit 1
 
     - name: Stop Container
       run: docker-compose -f "Container API ML/docker-compose.yml" down
