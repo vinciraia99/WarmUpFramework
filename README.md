@@ -21,7 +21,7 @@ Per eseguire il progetto, assicurati di avere installato:
 Clona il repository e installa le dipendenze richieste:
 
 ```bash
-git clone https://github.com/tuo-repo/WarmUpFramework.git
+git clone https://github.com/vinciraia99/WarmUpFramework.git
 cd WarmUpFramework/Addestramento\ ML/
 pip install -r requirements.txt
 ```
